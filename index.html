@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Checklist de Cierre | Gravity Climbing</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.5/dist/signature_pad.umd.min.js"></script>
+  <style>
+:root{
+  --bg:#ffffff; --ink:#0b0f17; --muted:#475467; --line:#111; --soft:#f8fafc;
+  --danger:#b42318; --ok:#027a48; --warn:#b54708; --radius:22px;
+  --shadow:0 18px 50px rgba(16,24,40,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--ink);background:var(--bg)}
+.wrap{max-width:1060px;margin:0 auto;padding:26px 16px 60px}
+.topbar,.card,.actionbar{border:1.5px solid var(--line);border-radius:var(--radius);background:#fff;box-shadow:var(--shadow)}
+.topbar{overflow:hidden;margin-bottom:16px}.brand{width:100%;height:auto;display:block;background:#fff}.topmeta{padding:18px;display:flex;gap:14px;justify-content:space-between;align-items:flex-end;flex-wrap:wrap}
+h1{margin:0;font-size:24px;line-height:1.1;text-transform:uppercase;letter-spacing:.9px;font-weight:950}.sub{margin:10px 0 0;color:var(--muted);line-height:1.45;max-width:88ch}.badge{display:inline-flex;gap:8px;align-items:center;border:1.5px solid var(--line);border-radius:999px;padding:10px 12px;background:#fff;color:var(--muted);font-weight:750;font-size:13px;white-space:nowrap}.dot{width:10px;height:10px;border-radius:99px;background:#111;box-shadow:0 0 0 6px rgba(17,17,17,.08)}
+.grid{display:grid;grid-template-columns:1fr;gap:16px}@media(min-width:960px){.grid{grid-template-columns:1.25fr .75fr;align-items:start}}
+.card{padding:20px 18px}.card + .card{margin-top:16px}.card h2{margin:0 0 14px;text-transform:uppercase;letter-spacing:1px;font-size:15px;font-weight:950}.card h3{margin:18px 0 10px;font-size:14px;text-transform:uppercase;letter-spacing:.8px}.note{border:1.5px solid rgba(17,17,17,.15);border-radius:18px;background:var(--soft);padding:14px;color:#344054;line-height:1.45}.note b{color:#111}
+label{display:block;margin:14px 0 8px;font-size:13px;font-weight:850;letter-spacing:.2px}.req{color:var(--danger);font-weight:950}
+input,select,textarea{width:100%;border:1.5px solid var(--line);border-radius:16px;padding:13px 14px;font-size:16px;line-height:1.25;background:#fff;color:var(--ink);outline:none}textarea{min-height:92px;resize:vertical;line-height:1.45}input:focus,select:focus,textarea:focus{box-shadow:0 0 0 4px rgba(17,17,17,.10)}.row2,.row3{display:grid;grid-template-columns:1fr;gap:12px}@media(min-width:720px){.row2{grid-template-columns:1fr 1fr}.row3{grid-template-columns:1fr 1fr 1fr}}
+.checklist{border:1.5px solid rgba(17,17,17,.18);border-radius:18px;overflow:hidden}.item{display:grid;grid-template-columns:42px 1fr;gap:0;border-bottom:1px solid rgba(17,17,17,.12)}.item:last-child{border-bottom:0}.num{padding:14px 10px;background:#f9fafb;font-weight:950;text-align:center;border-right:1px solid rgba(17,17,17,.12)}.itembody{padding:12px}.task{font-weight:760;line-height:1.35}.itemcontrols{display:grid;grid-template-columns:180px 1fr;gap:10px;margin-top:10px}.itemcontrols textarea{min-height:46px;padding:10px 12px;font-size:14px;border-color:rgba(17,17,17,.25)}.itemcontrols select{padding:10px 12px;font-size:14px;border-color:rgba(17,17,17,.25)}@media(max-width:680px){.itemcontrols{grid-template-columns:1fr}.item{grid-template-columns:36px 1fr}}
+.signature{border:1.5px solid rgba(17,17,17,.18);border-radius:18px;padding:14px;background:#fff}.sighead{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:12px}.sighead .ttl{font-size:12.5px;text-transform:uppercase;letter-spacing:1px;font-weight:950}canvas{width:100%;height:245px;border:1.5px solid rgba(17,17,17,.25);border-radius:16px;background:#fff;display:block;touch-action:none}
+.btn{border:1.5px solid var(--line);border-radius:18px;padding:13px 15px;background:#fff;color:#111;font-weight:950;font-size:15px;cursor:pointer}.btn.primary{background:#111;border-color:#111;color:#fff;box-shadow:0 14px 30px rgba(17,17,17,.14)}.btn.danger{color:var(--danger);border-color:rgba(180,35,24,.42);background:rgba(180,35,24,.06)}.btn:disabled{opacity:.55;cursor:not-allowed}.actionbar{margin-top:16px;padding:14px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}.actions{display:flex;gap:10px;flex-wrap:wrap}.status{display:none;margin-top:12px;padding:12px;border-radius:16px;line-height:1.4}.status.error{display:block;color:var(--danger);border:1.5px solid rgba(180,35,24,.45);background:rgba(180,35,24,.06)}.status.ok{display:block;color:var(--ok);border:1.5px solid rgba(2,122,72,.35);background:rgba(2,122,72,.08)}.status.info{display:block;color:#344054;border:1.5px solid rgba(52,64,84,.25);background:#f9fafb}.small{font-size:12.5px;color:#667085;line-height:1.45;margin-top:10px}.sideul{padding-left:18px;color:var(--muted);line-height:1.55}.emailbox{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#f9fafb;border:1px solid rgba(17,17,17,.14);border-radius:14px;padding:10px;word-break:break-word}.warn{color:var(--warn);font-weight:900}.pill{display:inline-block;border:1px solid rgba(17,17,17,.2);border-radius:999px;padding:5px 9px;margin:3px 5px 3px 0;color:#344054;background:#f9fafb;font-size:12px;font-weight:800}
+</style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="topbar">
+      <img class="brand" src="logo-gravity.jpg" alt="Chile Climbers / Gravity">
+      <div class="topmeta">
+        <div>
+          <h1>CIERRE GRAVITY CLIMBING</h1>
+          <p class="sub">Completar al término del turno, antes de cerrar el boulder. Deben quedar contestados los mensajes del día y derivadas las consultas pendientes.</p>
+        </div>
+        <div class="badge"><span class="dot"></span><span id="metaNow">Fecha y hora: —</span></div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <form id="checkForm">
+        <div class="card">
+          <h2>Datos del checklist</h2>
+          <div class="row3">
+            <div><label for="fecha">Fecha <span class="req">*</span></label><input id="fecha" type="date" required></div>
+            <div><label for="diaSemana">Día</label><select id="diaSemana"><option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option><option>Viernes</option><option>Sábado</option><option>Domingo</option></select></div>
+            <div><label for="hora">Hora cierre <span class="req">*</span></label><input id="hora" type="time" required></div>
+          </div>
+          <div class="row2">
+            <div><label for="realizadoPor">Realizado por <span class="req">*</span></label><input id="realizadoPor" placeholder="Nombre y apellido" required></div>
+            <div><label for="turno">Turno / equipo</label><input id="turno" placeholder="Ej: AM / PM / equipo recepción"></div>
+          </div>
+          <div class="note"><b>CIERRE DE JORNADA.</b> Este checklist debe completarse y enviarse al término del turno, dejando caja, recepción, aseo, seguridad y comunicaciones respaldadas.</div>
+        </div>
+
+        <div class="card">
+          <h2>Cierre - tareas operativas</h2>
+          <div class="checklist" data-group="base">
+<div class="item">
+  <div class="num">1</div>
+  <div class="itembody">
+    <div class="task">Realizar cierre de caja y guardar el archivador o respaldo correspondiente.</div>
+    <div class="itemcontrols">
+      <select aria-label="Estado item 1">
+        <option value="">Marcar estado...</option>
+        <option>OK</option>
+        <option>Observación</option>
+        <option>No aplica</option>
+      </select>
+      <textarea placeholder="Observación / acción tomada (si aplica)"></textarea>
+    </div>
+  </div>
+</div>
+<div class="item">
+  <div class="num">2</div>
+  <div class="itembody">
+    <div class="task">Revisar y cuadrar el efectivo de la jornada, dejando registro de diferencias si existieran.</div>
+    <div class="itemcontrols">
+      <select aria-label="Estado item 2">
+        <option value="">Marcar estado...</option>
+        <option>OK</option>
+        <option>Observación</option>
+        <option>No aplica</option>
+      </select>
+      <textarea placeholder="Observación / acción tomada (si aplica)"></textarea>
+    </div>
+  </div>
+</div>
+<div class="item">
+  <div class="num">3</div>
+  <div class="itembody">
+    <div class="task">Registrar novedades en el libro de traspaso de turno, planilla, correo o medio definido por administración.</div>
+    <div class="itemcontrols">
+      <select aria-label="Estado item 3">
+        <option value="">Marcar estado...</option>
+        <option>OK</option>
+        <option>Observación</option>
+        <option>No aplica</option>
+      </select>
+      <textarea placeholder="Observación / acción tomada (si aplica)"></textarea>
+    </div>
+  </div>
+</div>
+<div class="item">
+  <div class="num">4</div>
+  <div class="itembody">
+    <div class="task">Guardar productos de venta de recepción y dejar exhibición resguardada según corresponda.</div>
+    <div class="itemcontrols">
+      <select aria-label="Estado item 4">
+        <option value="">Marcar estado...</option>
+        <option>OK</option>
+        <option>Observación</option>
+        <option>No aplica</option>
+      </select>
+      <textarea placeholder="Observación / acción tomada (si aplica)"></textarea>
+    </div>
+  </div>
+</div>
+<div class="item">
+  <div class="num">5</div>
+  <div class="itembody">
+    <div class="task">Ordenar recepción y dejar el mesón despejado, limpio y organizado.</div>
+    <div class="itemcontrols">
+      <select aria-label="Estado item 5">
+        <option value="">Marcar estado...</option>
+        <option>OK</option>
+        <option>Observación</option>
+        <option>No aplica</option>
+      </select>
+      <textarea placeholder="Observación / acción tomada (si aplica)"></textarea>
+    </div>
+  </div>
+</div>
+<div class="item">
+  <div class="num">6</div>
+  <div class="itembody">
+    <div class="task">Recoger objetos perdidos de clientes y guardarlos en recepción, dejando registro si corresponde.</div>
+    <div class="itemcontrols">
+      <select aria-label="Estado item 6">
+        <option value="">Marcar estado...</option>
+        <option>OK</option>
+        <option>Observación</option>
+        <option>No aplica</option>
+      </select>
+      <textarea placeholder="Observación / acción tomada (si aplica)"></textarea>
+    </div>
+  </div>
+</div>
+<div class="item">
+  <div class="num">7</div>
+  <div class="itembody">
+    <div class="task">Revisar basura y limpiar suciedad en pisos, pasillos, sala de entrenamiento, slab y zona de recepción.</div>
+    <div class="itemcontrols">
+      <select aria-label="Estado item 7">
+        <option value="">Marcar estado...</option>
+        <option>OK</option>
+        <option>Observación</option>
+        <option>No aplica</option>
+      </select>
+      <textarea placeholder="Observación / acción tomada (si aplica)"></textarea>
+    </div>
+  </div>
+</div>
+<div class="item">
+  <div class="num">8</div>
+  <div class="itembody">
+    <div class="task">Barrer, aspirar y trapear piso si corresponde al cierre.</div>
+    <div class="itemcontrols">
+      <select aria-label="Estado item 8">
+        <option value="">Marcar estado...</option>
+        <option>OK</option>
+        <option>Observación</option>
+        <option>No aplica</option>
+      </select>
+      <textarea placeholder="Observación / acción tomada (si aplica)"></textarea>
+    </div>
+  </div>
+</div>
+<div class="item">
+  <div class="num">9</div>
+  <div class="itembody">
+    <div class="task">Revisar presencia de objetos sueltos, por ejemplo tornillos, golillas, tuercas, presas u otros, y limpiar colchonetas.</div>
+    <div class="itemcontrols">
+      <select aria-label="Estado item 9">
+        <option value="">Marcar estado...</option>
+        <option>OK</option>
+        <option>Observación</option>
+        <option>No aplica</option>
+      </select>
+      <textarea placeholder="Observación / acción tomada (si aplica)"></textarea>
+    </div>
+  </div>
+</div>
+<div class="item">
+  <div class="num">10</div>
+  <div class="itembody">
+    <div class="task">Ordenar implementos deportivos y dejarlos en su lugar correspondiente.</div>
+    <div class="itemcontrols">
+      <select aria-label="Estado item 10">
+        <option value="">Marcar estado...</option>
+        <option>OK</option>
+        <option>Observación</option>
+        <option>No aplica</option>
+      </select>
+      <textarea placeholder="Observación / acción tomada (si aplica)"></textarea>
+    </div>
+  </div>
+</div>
+<div class="item">
+  <div class="num">11</div>
+  <div class="itembody">
+    <div class="task">Aspirar colchonetas y trapear pisos. Lavar, desinfectar y dejar secando los paños de limpieza.</div>
+    <div class="itemcontrols">
+      <select aria-label="Estado item 11">
+        <option value="">Marcar estado...</option>
+        <option>OK</option>
+        <option>Observación</option>
+        <option>No aplica</option>
+      </select>
+      <textarea placeholder="Observación / acción tomada (si aplica)"></textarea>
+    </div>
+  </div>
+</div>
+<div class="item">
+  <div class="num">12</div>
+  <div class="itembody">
+    <div class="task">Comprobar conservación de gel packs, cerrar cooler y dejar elementos de primeros auxilios en su lugar.</div>
+    <div class="itemcontrols">
+      <select aria-label="Estado item 12">
+        <option value="">Marcar estado...</option>
+        <option>OK</option>
+        <option>Observación</option>
+        <option>No aplica</option>
+      </select>
+      <textarea placeholder="Observación / acción tomada (si aplica)"></textarea>
+    </div>
+  </div>
+</div>
+<div class="item">
+  <div class="num">13</div>
+  <div class="itembody">
+    <div class="task">Dejar contestados los mensajes de Instagram, solicitudes, mensajes generales, Gmail, teléfono o celular corporativo antes de cerrar.</div>
+    <div class="itemcontrols">
+      <select aria-label="Estado item 13">
+        <option value="">Marcar estado...</option>
+        <option>OK</option>
+        <option>Observación</option>
+        <option>No aplica</option>
+      </select>
+      <textarea placeholder="Observación / acción tomada (si aplica)"></textarea>
+    </div>
+  </div>
+</div>
+<div class="item">
+  <div class="num">14</div>
+  <div class="itembody">
+    <div class="task">Derivar a administración los mensajes, reclamos, reservas o solicitudes que no puedan resolverse durante el turno.</div>
+    <div class="itemcontrols">
+      <select aria-label="Estado item 14">
+        <option value="">Marcar estado...</option>
+        <option>OK</option>
+        <option>Observación</option>
+        <option>No aplica</option>
+      </select>
+      <textarea placeholder="Observación / acción tomada (si aplica)"></textarea>
+    </div>
+  </div>
+</div>
+<div class="item">
+  <div class="num">15</div>
+  <div class="itembody">
+    <div class="task">Apagar luces, parlante, TV, ventiladores o estufas según corresponda.</div>
+    <div class="itemcontrols">
+      <select aria-label="Estado item 15">
+        <option value="">Marcar estado...</option>
+        <option>OK</option>
+        <option>Observación</option>
+        <option>No aplica</option>
+      </select>
+      <textarea placeholder="Observación / acción tomada (si aplica)"></textarea>
+    </div>
+  </div>
+</div>
+<div class="item">
+  <div class="num">16</div>
+  <div class="itembody">
+    <div class="task">Comprobar que no queden clientes en el recinto y que las áreas de uso estén despejadas.</div>
+    <div class="itemcontrols">
+      <select aria-label="Estado item 16">
+        <option value="">Marcar estado...</option>
+        <option>OK</option>
+        <option>Observación</option>
+        <option>No aplica</option>
+      </select>
+      <textarea placeholder="Observación / acción tomada (si aplica)"></textarea>
+    </div>
+  </div>
+</div>
+<div class="item">
+  <div class="num">17</div>
+  <div class="itembody">
+    <div class="task">Cerrar y asegurar el local conforme al procedimiento interno.</div>
+    <div class="itemcontrols">
+      <select aria-label="Estado item 17">
+        <option value="">Marcar estado...</option>
+        <option>OK</option>
+        <option>Observación</option>
+        <option>No aplica</option>
+      </select>
+      <textarea placeholder="Observación / acción tomada (si aplica)"></textarea>
+    </div>
+  </div>
+</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Controles complementarios antes de cerrar</h2>
+          <div class="checklist" data-group="extra">
+<div class="item">
+  <div class="num">1</div>
+  <div class="itembody">
+    <div class="task">Revisar que zonas de caída y pasillos queden libres de obstáculos para la siguiente apertura.</div>
+    <div class="itemcontrols">
+      <select aria-label="Estado item 1">
+        <option value="">Marcar estado...</option>
+        <option>OK</option>
+        <option>Observación</option>
+        <option>No aplica</option>
+      </select>
+      <textarea placeholder="Observación / acción tomada (si aplica)"></textarea>
+    </div>
+  </div>
+</div>
+<div class="item">
+  <div class="num">2</div>
+  <div class="itembody">
+    <div class="task">Dejar informados riesgos, desperfectos, presas flojas, incidentes o pendientes operativos detectados durante el turno.</div>
+    <div class="itemcontrols">
+      <select aria-label="Estado item 2">
+        <option value="">Marcar estado...</option>
+        <option>OK</option>
+        <option>Observación</option>
+        <option>No aplica</option>
+      </select>
+      <textarea placeholder="Observación / acción tomada (si aplica)"></textarea>
+    </div>
+  </div>
+</div>
+<div class="item">
+  <div class="num">3</div>
+  <div class="itembody">
+    <div class="task">Verificar que baños, recepción, sala de entrenamiento y slab queden en condiciones razonables de orden y limpieza.</div>
+    <div class="itemcontrols">
+      <select aria-label="Estado item 3">
+        <option value="">Marcar estado...</option>
+        <option>OK</option>
+        <option>Observación</option>
+        <option>No aplica</option>
+      </select>
+      <textarea placeholder="Observación / acción tomada (si aplica)"></textarea>
+    </div>
+  </div>
+</div>
+<div class="item">
+  <div class="num">4</div>
+  <div class="itembody">
+    <div class="task">Confirmar que equipos, computadores, correo, celular, caja y documentos queden cerrados o resguardados.</div>
+    <div class="itemcontrols">
+      <select aria-label="Estado item 4">
+        <option value="">Marcar estado...</option>
+        <option>OK</option>
+        <option>Observación</option>
+        <option>No aplica</option>
+      </select>
+      <textarea placeholder="Observación / acción tomada (si aplica)"></textarea>
+    </div>
+  </div>
+</div>
+<div class="item">
+  <div class="num">5</div>
+  <div class="itembody">
+    <div class="task">Revisar que cilindros de gas, implementos y materiales de limpieza queden ordenados en bodega o lugar asignado.</div>
+    <div class="itemcontrols">
+      <select aria-label="Estado item 5">
+        <option value="">Marcar estado...</option>
+        <option>OK</option>
+        <option>Observación</option>
+        <option>No aplica</option>
+      </select>
+      <textarea placeholder="Observación / acción tomada (si aplica)"></textarea>
+    </div>
+  </div>
+</div>
+<div class="item">
+  <div class="num">6</div>
+  <div class="itembody">
+    <div class="task">Enviar el PDF de cierre con respaldo de comunicaciones, novedades y acciones realizadas.</div>
+    <div class="itemcontrols">
+      <select aria-label="Estado item 6">
+        <option value="">Marcar estado...</option>
+        <option>OK</option>
+        <option>Observación</option>
+        <option>No aplica</option>
+      </select>
+      <textarea placeholder="Observación / acción tomada (si aplica)"></textarea>
+    </div>
+  </div>
+</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Redes y comunicaciones de cierre</h2>
+          <div class="note"><b>OBLIGATORIO.</b> Antes de cerrar, los mensajes del día deben quedar contestados. Si algo queda pendiente, debe estar derivado a administración y registrado como observación.</div>
+          <label for="redesResumen">Resumen de mensajes contestados y pendientes derivados <span class="req">*</span></label>
+          <textarea id="redesResumen" placeholder="Ej: Se revisó Instagram principal, solicitudes, general y Gmail. Todos los mensajes quedaron contestados. Pendiente X fue derivado a administración por WhatsApp/correo."></textarea>
+          <p class="small">Canales sugeridos: <span class="pill">Instagram principal</span><span class="pill">Solicitudes</span><span class="pill">General</span><span class="pill">Gmail</span><span class="pill">Teléfono / celular</span></p>
+        </div>
+
+        <div class="card">
+          <h2>Observaciones, avisos y firma</h2>
+          <label for="observacionesGenerales">Observaciones generales</label>
+          <textarea id="observacionesGenerales" placeholder="Resumen de novedades, riesgos detectados, pendientes o comentarios relevantes."></textarea>
+          <label for="accionCorrectiva">Acción correctiva / aviso realizado</label>
+          <textarea id="accionCorrectiva" placeholder="Ej: Se solucionó, se avisó a administración, se dejó zona señalizada, se informó por WhatsApp, etc."></textarea>
+          <div class="signature" style="margin-top:14px;">
+            <div class="sighead"><div class="ttl">Firma responsable <span class="req">*</span></div><button class="btn danger" type="button" id="btnClearSig">Limpiar firma</button></div>
+            <canvas id="sigCanvas"></canvas>
+          </div>
+          <div id="status" class="status"></div>
+        </div>
+
+        <div class="actionbar">
+          <div class="badge"><span class="dot"></span><span>Enviar a: muromallsport@chileclimbers.cl</span></div>
+          <div class="actions"><button class="btn primary" type="button" id="btnGenerate">Generar PDF y abrir correo</button></div>
+        </div>
+      </form>
+
+      <aside class="card">
+        <h2>Uso operativo</h2>
+        <p class="note">1) Completar todos los puntos.<br>2) Completar el bloque de comunicaciones/redes.<br>3) Firmar.<br>4) Presionar <b>Generar PDF y abrir correo</b>.<br>5) Adjuntar manualmente el PDF descargado.<br>6) Enviar el correo.</p>
+        <h3>Importante</h3>
+        <ul class="sideul">
+          <li>El navegador no permite adjuntar automáticamente archivos a un correo con <b>mailto</b>.</li>
+          <li>Este formulario descarga el PDF y abre el correo de inmediato.</li>
+          <li>Si hay una observación, debe quedar escrito qué se hizo o a quién se avisó.</li>
+          <li>En cierre, el respaldo debe dejar constancia de que los mensajes quedaron contestados o debidamente derivados.</li>
+        </ul>
+        <h3>Correo destino</h3>
+        <div class="emailbox">muromallsport@chileclimbers.cl</div>
+        <p class="small">Base documental: checklist operativo Gravity adaptado a apertura/cierre y atención de redes.</p>
+      </aside>
+    </section>
+  </main>
+  <script>const CONFIG = {"pageTitle": "Checklist de Cierre | Gravity Climbing", "h1": "CIERRE GRAVITY CLIMBING", "subtitle": "Completar al término del turno, antes de cerrar el boulder. Deben quedar contestados los mensajes del día y derivadas las consultas pendientes.", "tipo": "Cierre", "version": "Cierre separado / Jun26", "horaLabel": "Hora cierre", "filePrefix": "Checklist_Cierre_Gravity", "emailTo": "muromallsport@chileclimbers.cl", "emailSubjectPrefix": "Checklist Cierre Gravity LISTO", "emailIntro": "Se informa que el checklist de cierre Gravity fue completado. Se adjunta PDF de respaldo.", "baseTitle": "Cierre - tareas operativas", "extraTitle": "Controles complementarios antes de cerrar", "noteBold": "CIERRE DE JORNADA.", "noteText": "Este checklist debe completarse y enviarse al término del turno, dejando caja, recepción, aseo, seguridad y comunicaciones respaldadas.", "redesTitle": "Redes y comunicaciones de cierre", "redesTitlePdf": "REDES Y COMUNICACIONES DE CIERRE", "redesNoteBold": "OBLIGATORIO.", "redesNoteText": "Antes de cerrar, los mensajes del día deben quedar contestados. Si algo queda pendiente, debe estar derivado a administración y registrado como observación.", "redesLabel": "Resumen de mensajes contestados y pendientes derivados", "redesLabelPdf": "Resumen de mensajes contestados y pendientes derivados", "redesPlaceholder": "Ej: Se revisó Instagram principal, solicitudes, general y Gmail. Todos los mensajes quedaron contestados. Pendiente X fue derivado a administración por WhatsApp/correo.", "requireRedesResumen": true, "requireRedesResumenMsg": "Completa el resumen de mensajes contestados y pendientes derivados.", "asideExtra": "En cierre, el respaldo debe dejar constancia de que los mensajes quedaron contestados o debidamente derivados.", "pdfIntro": "Instrucciones: realizar chequeo de cierre, dejar contestados los mensajes del día y registrar observaciones/acciones cuando corresponda."};
+const { jsPDF } = window.jspdf;
+const canvas = document.getElementById('sigCanvas');
+const signaturePad = new SignaturePad(canvas, { minWidth:1, maxWidth:2.5 });
+function pad(n){ return String(n).padStart(2,'0'); }
+function nowHuman(){ const d=new Date(); return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+function todayISO(){ const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+function val(id){ const el=document.getElementById(id); return el ? String(el.value || '').trim() : ''; }
+function safeFile(s){ return (s || 'sin_dato').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9_-]+/g,'_').replace(/^_+|_+$/g,'').slice(0,42) || 'sin_dato'; }
+function setStatus(type,msg){ const el=document.getElementById('status'); el.className = `status ${type}`; el.textContent = msg; }
+function escapeMailText(s){ return encodeURIComponent(s).replace(/%20/g, '+'); }
+function resizeCanvas(){
+  const ratio = Math.max(window.devicePixelRatio || 1, 1);
+  const data = !signaturePad.isEmpty() ? signaturePad.toData() : null;
+  const rect = canvas.getBoundingClientRect();
+  if(!rect.width || !rect.height) return;
+  canvas.width = Math.round(rect.width * ratio);
+  canvas.height = Math.round(rect.height * ratio);
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.scale(ratio, ratio);
+  signaturePad.clear();
+  if(data) signaturePad.fromData(data);
+}
+window.addEventListener('resize', () => requestAnimationFrame(resizeCanvas));
+window.addEventListener('orientationchange', () => setTimeout(resizeCanvas,150));
+document.addEventListener('touchmove', e => { if(e.target === canvas) e.preventDefault(); }, { passive:false });
+setTimeout(resizeCanvas,100); setTimeout(resizeCanvas,300);
+function collectItems(kind){
+  return [...document.querySelectorAll(`[data-group="${kind}"] .item`)].map((row, idx) => ({
+    n: idx + 1,
+    task: row.querySelector('.task').textContent.trim(),
+    status: row.querySelector('select').value,
+    obs: row.querySelector('textarea').value.trim()
+  }));
+}
+function collectData(){
+  return {
+    tipo: CONFIG.tipo,
+    version: CONFIG.version,
+    generado: nowHuman(),
+    fecha: val('fecha'),
+    realizadoPor: val('realizadoPor'),
+    hora: val('hora'),
+    turno: val('turno'),
+    diaSemana: val('diaSemana'),
+    observacionesGenerales: val('observacionesGenerales'),
+    accionCorrectiva: val('accionCorrectiva'),
+    redesResumen: val('redesResumen'),
+    itemsBase: collectItems('base'),
+    itemsExtra: collectItems('extra')
+  };
+}
+function validate(data){
+  if(!data.fecha || !data.realizadoPor || !data.hora) return `Completa fecha, realizado por y ${CONFIG.horaLabel.toLowerCase()}.`;
+  const all = [...data.itemsBase, ...data.itemsExtra];
+  const missing = all.filter(i => !i.status);
+  if(missing.length) return `Faltan ${missing.length} ítem(s) por marcar como OK, Observación o No aplica.`;
+  const hasObs = all.some(i => i.status === 'Observación');
+  if(hasObs && !data.observacionesGenerales && !all.some(i => i.obs)) return 'Marcaste una observación. Escribe el detalle en el ítem o en observaciones generales.';
+  if(CONFIG.requireRedesResumen && !data.redesResumen) return CONFIG.requireRedesResumenMsg;
+  if(signaturePad.isEmpty()) return 'Falta la firma del responsable.';
+  return null;
+}
+function addWrappedText(doc, text, x, y, maxWidth, lineHeight){
+  const lines = doc.splitTextToSize(text || '-', maxWidth);
+  doc.text(lines, x, y);
+  return y + (lines.length * lineHeight);
+}
+function buildPdf(data){
+  const doc = new jsPDF({unit:'mm', format:'a4'});
+  const margin = 13;
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  let y = 15;
+  const usable = pageW - margin*2;
+  const ensure = h => { if(y + h > pageH - 15){ doc.addPage(); y = 15; } };
+  const line = () => { doc.setDrawColor(17,17,17); doc.setLineWidth(.25); doc.line(margin,y,pageW-margin,y); y += 5; };
+  const title = t => { doc.setFont('helvetica','bold'); doc.setFontSize(14); doc.text(t, margin, y); y += 7; };
+  const h2 = t => { ensure(10); doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.text(t, margin, y); y += 6; };
+  const kv = (k,v) => { ensure(7); doc.setFont('helvetica','bold'); doc.setFontSize(9.5); doc.text(k, margin, y); doc.setFont('helvetica','normal'); doc.text(v || '-', margin+48, y); y += 5.5; };
+  title(`CHECKLIST ${data.tipo.toUpperCase()} GRAVITY`);
+  doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
+  doc.text(`Versión base: ${data.version} | Generado: ${data.generado}`, margin, y); y += 6;
+  doc.text(CONFIG.pdfIntro, margin, y); y += 6;
+  line();
+  h2('DATOS DEL CHECKLIST');
+  kv('Fecha:', data.fecha); kv('Día:', data.diaSemana); kv('Realizado por:', data.realizadoPor); kv(CONFIG.horaLabel + ':', data.hora); kv('Turno:', data.turno);
+  line();
+  function renderItems(label, items){
+    h2(label);
+    items.forEach(item => {
+      const blockH = item.obs ? 18 : 12;
+      ensure(blockH);
+      doc.setFont('helvetica','bold'); doc.setFontSize(9.2);
+      doc.text(`${item.n}.`, margin, y);
+      doc.setFont('helvetica','normal');
+      y = addWrappedText(doc, item.task, margin+7, y, usable-48, 4.2);
+      doc.setFont('helvetica','bold'); doc.setFontSize(9.2);
+      doc.text(`[${item.status || '-'}]`, pageW-margin-34, y-4.2);
+      if(item.obs){
+        doc.setFont('helvetica','italic'); doc.setFontSize(8.8);
+        y = addWrappedText(doc, `Obs: ${item.obs}`, margin+7, y+1.2, usable-10, 4.0);
+      }
+      y += 2.2;
+    });
+  }
+  renderItems(CONFIG.baseTitle, data.itemsBase);
+  line();
+  renderItems(CONFIG.extraTitle, data.itemsExtra);
+  line();
+  h2(CONFIG.redesTitlePdf);
+  doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
+  y = addWrappedText(doc, `${CONFIG.redesLabelPdf}: ${data.redesResumen || '-'}`, margin, y, usable, 4.5) + 2;
+  line();
+  h2('OBSERVACIONES Y ACCIONES CORRECTIVAS');
+  doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
+  y = addWrappedText(doc, `Observaciones generales: ${data.observacionesGenerales || '-'}`, margin, y, usable, 4.5) + 2;
+  ensure(15);
+  y = addWrappedText(doc, `Acción correctiva / aviso realizado: ${data.accionCorrectiva || '-'}`, margin, y, usable, 4.5) + 4;
+  line();
+  ensure(56);
+  h2('FIRMA RESPONSABLE');
+  const sigImg = signaturePad.toDataURL('image/png');
+  doc.rect(margin, y, usable, 31);
+  doc.addImage(sigImg, 'PNG', margin+2, y+2, usable-4, 27);
+  y += 38;
+  kv('Responsable:', data.realizadoPor);
+  kv('Fecha y hora:', data.generado);
+  return doc;
+}
+function buildEmail(data, filename){
+  const all = [...data.itemsBase, ...data.itemsExtra];
+  const obs = all.filter(i => i.status === 'Observación');
+  const na = all.filter(i => i.status === 'No aplica');
+  const subject = `${CONFIG.emailSubjectPrefix} - ${data.fecha} - ${data.realizadoPor}`;
+  const bodyLines = [
+    `${CONFIG.emailIntro}`,
+    '',
+    `Fecha: ${data.fecha}`,
+    `Dia: ${data.diaSemana || '-'}`,
+    `Realizado por: ${data.realizadoPor}`,
+    `${CONFIG.horaLabel}: ${data.hora}`,
+    `Turno: ${data.turno || '-'}`,
+    '',
+    `Resumen:`,
+    `- Items con observacion: ${obs.length}`,
+    `- Items no aplica: ${na.length}`,
+    '',
+    `${CONFIG.redesLabelPdf}: ${data.redesResumen || '-'}`,
+    `Observaciones generales: ${data.observacionesGenerales || '-'}`,
+    `Accion correctiva / aviso: ${data.accionCorrectiva || '-'}`,
+    '',
+    `Adjunto: ${filename}`,
+    '',
+    'IMPORTANTE: adjuntar manualmente el PDF generado antes de enviar este correo.'
+  ];
+  return { subject, body: bodyLines.join('\n') };
+}
+function openMail(data, filename){
+  const email = buildEmail(data, filename);
+  const url = `mailto:${CONFIG.emailTo}?subject=${escapeMailText(email.subject)}&body=${escapeMailText(email.body)}`;
+  window.location.href = url;
+}
+function handleGenerate(){
+  const btn = document.getElementById('btnGenerate');
+  try{
+    const data = collectData();
+    const error = validate(data);
+    if(error){ setStatus('error', error); return; }
+    btn.disabled = true;
+    setStatus('info', 'Generando PDF. Luego se abrirá el correo para que adjuntes el archivo y lo envíes de inmediato.');
+    const doc = buildPdf(data);
+    const filename = `${CONFIG.filePrefix}_${data.fecha}_${safeFile(data.realizadoPor)}.pdf`;
+    doc.save(filename);
+    setTimeout(() => {
+      openMail(data, filename);
+      setStatus('ok', `PDF generado: ${filename}. Se abrió el correo; adjunta ese PDF antes de enviarlo.`);
+      btn.disabled = false;
+    }, 700);
+  }catch(e){
+    setStatus('error', e.message || 'No se pudo generar el PDF.');
+    btn.disabled = false;
+  }
+}
+function setDefaults(){
+  document.getElementById('fecha').value = todayISO();
+  document.getElementById('metaNow').textContent = `Fecha y hora: ${nowHuman()}`;
+  setInterval(() => { document.getElementById('metaNow').textContent = `Fecha y hora: ${nowHuman()}`; }, 10000);
+  const d = new Date(); const day = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'][d.getDay()];
+  const ds = document.getElementById('diaSemana'); if(ds) ds.value = day;
+}
+document.getElementById('btnGenerate').addEventListener('click', handleGenerate);
+document.getElementById('btnClearSig').addEventListener('click', () => signaturePad.clear());
+setDefaults();
+</script>
+</body>
+</html>
